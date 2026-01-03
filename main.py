@@ -1691,11 +1691,15 @@ if __name__ == "__main__":
         logger.error(f"❌ Failed to fetch assistant info: {e}")
 
     
-    logger.info("→ Starting connection watchdog (restarts container if no activity)...")
-    try:
-        asyncio.get_event_loop().create_task(connection_watchdog())
-    except Exception as e:
-        logger.error(f"Failed to start connection watchdog task: {e}")
+    if os.getenv("DISABLE_WATCHDOG", "false").lower() != "true":
+        logger.info("→ Starting connection watchdog...")
+        try:
+            asyncio.get_event_loop().create_task(connection_watchdog())
+        except Exception as e:
+            logger.error(f"Failed to start connection watchdog task: {e}")
+    else:
+        logger.info("🚫 Watchdog disabled (cloud environment detected).")
+
 
     logger.info("→ Entering idle() (long-polling)")
     idle()  
